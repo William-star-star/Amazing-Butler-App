@@ -366,13 +366,14 @@ class PageOne(tk.Frame):
         c = conn.cursor()
         c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Income" AND InEx = "Expenses"')
         income = c.fetchall() 
+        expense = c.fetchall()
        
-        Money_in = tk.Label(self, text='Account Balance in Euros', font='bold', bg='white')
-        Money_in.place(x=480, y=250)
-        Money_in_show = tk.Label(self, text=income,
+        Acct_bal = tk.Label(self, text='Account Balance in Euros', font='bold', bg='white')
+        Acct_bal.place(x=480, y=250)
+        Acct_bal_show = tk.Label(self, text=income,
                                  font='bold', bg='white', borderwidth=2,
                                  relief="solid", width=20)
-        Money_in_show.place(x=480, y=280)
+        Acct_bal_show.place(x=480, y=280)
         
     def graph_save(self):
         conn = sqlite3.connect('Users_data.db')
@@ -733,7 +734,7 @@ class Pagesetup(tk.Frame):
         return_btn = tk.Button(self, text='Cancel and return',
                                fg='white', bd='5', bg='blue',
                                command=lambda: self.controller.show_frame(PageEdit))
-        return_btn.place(x=900, y=400, height=60, width=200)
+        return_btn.place(x=900, y=300, height=60, width=200)
         
 
         
