@@ -366,7 +366,7 @@ class PageOne(tk.Frame):
         c = conn.cursor()
         c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Income" AND InEx = "Expenses"')
         income = c.fetchall() 
-        expense = c.fetchall()
+     
        
         Acct_bal = tk.Label(self, text='Account Balance in Euros', font='bold', bg='white')
         Acct_bal.place(x=480, y=250)
@@ -454,103 +454,94 @@ class PageTransactions(tk.Frame):
      
     
      
-    def transaction(self):
+    class PageTransactions(tk.Frame):
 
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.lbl = tk.Label(self, bg="white")
+        self.lbl.place(x=10, y=10, height=200, width=200)
+
+        transactions.create_table(self)
+        StartPage.calendar(self)
+        self.working()
+        self.transaction()
+
+        logout = tk.Button(self, text="Logout", fg='white',
+                           bd='5', bg='blue',
+                           command=lambda: self.controller.show_frame(StartPage))
+        logout.place(x=650, y=60, height=60, width=200)
+
+        confirm_btn = tk.Button(self, text='Add transaction',
+                                fg='white', bd='5', bg='blue',
+                                command=self.entry_data)
+        confirm_btn.place(x=650, y=140, height=60, width=200)
+
+        return_btn = tk.Button(self, text='Cancel and return',
+                               fg='white', bd='5', bg='blue',
+                               command=lambda: self.controller.show_frame(PageOne))
+        return_btn.place(x=650, y=220, height=60, width=200,)
+
+    def transaction(self):
         global entry_verify
         global opts
-        global opts1
-        global comment_Box
         global date_Box
         global var
-        global names
-        global names1
-        
-        
-        entry_verify = tk.StringVar()
-        entry_verify1 = tk.StringVar()
-        
+
+        entry_verify = tk.IntVar()
+        db_path = r'C:\Users\Prosserc\Documents\Geocoding\test.db'
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
-        
         c.execute("SELECT * FROM Income")
-        
-        
-        from_where = ['Account', 'Savings', 'Salary', 'Others']
+        names = ['Salary', 'Rent', 'Savings', 'Travel', 'Groceries',
+                 'Subscriptions', 'Others']
         opts = tk.StringVar()
-        opts1 = tk.StringVar()
-        
+        var = tk.StringVar()
 
-        def to_where(self):
-            names1 = ['Account']
-            names = ['Rent', 'Savings', 'Travel', 'Groceries', 'Subscriptions', 'Pleasure', 'Gambling', 'Others']
-
-            if opts.get()=='Account':
-                to_Box['values'] = names
-            else:
-                to_Box['values'] = names1
-
-        from_label = tk.Label(self, text="From:", bg='white',
+        category_label = tk.Label(self, text="Category:", bg='white',
                                   justify='center', font='bold', width=8)
-        from_label.place(x=290, y=100)
+        category_label.place(x=290, y=100)
 
-        from_Box = ttk.Combobox(self, font=14, width=18, textvariable=opts)
-        from_Box.place(x=380, y=100, height=30)
-        from_Box['values'] = from_where
-        from_Box.bind("<<ComboboxSelected>>", to_where)
-        
-        to_label = tk.Label(self, text="To:", bg='white',
-                                  justify='center', font='bold', width=8)
-        to_label.place(x=290, y=200)
-        
-        to_Box = ttk.Combobox(self, font=14, width=18, textvariable=opts1)
-        to_Box.place(x=380, y=200, height=30)
-        to_Box.bind("<<ComboboxSelected>>")
+        category_Box = ttk.Combobox(self, font=14, width=18, textvariable=opts)
+        category_Box.place(x=380, y=100, height=30)
+        category_Box['values'] = names
+        category_Box.bind("<<ComboboxSelected>>")
 
         amount_label = tk.Label(self, text='Amount:', bg='white',
                                 justify='center', font='bold', width=8)
-        amount_label.place(x=290, y=300)
+        amount_label.place(x=290, y=200)
 
         Amount_Box = tk.Entry(self, font=20, bd='2', textvariable=entry_verify)
-        Amount_Box.place(x=380, y=300, height=30)
+        Amount_Box.place(x=380, y=200, height=30)
 
         date_label = tk.Label(self, text='Date:', bg='white',
                               justify='center', font='bold', width=8)
-        date_label.place(x=290, y=400)
+        date_label.place(x=290, y=300)
 
-        date_Box = DateEntry(self, font=14, bd='2', selectmode="day",
-                             date_pattern='dd.mm.y')
-        date_Box.place(x=380, y=400, height=30)
-        
-        comment_label = tk.Label(self, text='Comments: ', bg='white',
-                              justify='center', font='bold', width=10)
-        comment_label.place(x=290, y=500)
-        comment_Box = tk.Text(self, font=20, bd='2', width=20)
-        comment_Box.place(x=380, y=500, height=50)
-        
+        date_Box = DateEntry(self, font=14, width=20, bd='2', selectmode="day")
+        date_Box.place(x=380, y=300, height=30)
 
-    def entry_data(self, event=None):
-        
-        
+        check_box = tk.Checkbutton(self,  bg='white', variable=var,
+                                   offvalue='Expenses', onvalue='Income')
+        check_box.place(x=380, y=360)
+        check_box = tk.Label(self, text='Money in?', justify='center',
+                             font='bold', bg='white', width=8)
+        check_box.place(x=290, y=360)
+
+    def entry_data(self):
+
+        val2 = var.get()
         val1 = entry_verify.get()
         sel = opts.get()
-        sel1 = opts1.get()
         date = date_Box.get_date()
-        com = comment_Box.get("1.0",'end-1c')
-        
-        if sel == 'Account':
-            val2 = 'Expenses'
-        else:
-            val2 = 'Income'
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
-        
-        c.execute('INSERT INTO Income (from_where, category, Amount, date, InEx, comments) VALUES (?,?,?,?,?,?)', 
-                  (sel, sel1, val1, date, val2, com))
+        c.execute('INSERT INTO Income (Amount, category, date, InEx) VALUES (?,?,?,?)',
+                  (val1, sel, date, val2))
 
-        
         conn.commit()
-        conn.close() 
-    
+        conn.close()
+
     def clock_image(self, hr, min_, sec_):
         clock = Image.new("RGB", (400, 400), (255, 255, 255))
         draw = ImageDraw.Draw(clock)
@@ -575,9 +566,6 @@ class PageTransactions(tk.Frame):
         clock.save("clock_new.png")
 
     def working(self):
-        global hr
-        global min_
-        global sec_
 
         h = datetime.now().time().hour
         m = datetime.now().time().minute
@@ -591,8 +579,7 @@ class PageTransactions(tk.Frame):
         self.clock_image(hr, min_, sec_)
         self.img = ImageTk.PhotoImage(file="clock_new.png")
         self.lbl.config(image=self.img)
-        self.lbl.after(200, self.working)    
-
+        self.lbl.after(200, self.working)
 
 
 class PageEdit(tk.Frame):
