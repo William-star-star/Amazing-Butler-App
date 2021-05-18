@@ -24,6 +24,7 @@ from dateutil import parser
 from matplotlib import style
 style.use('fivethirtyeight')
 import numpy as np
+from PIL import ImageTk, Image
 
 
 class AmazingButler(tk.Tk):
@@ -92,6 +93,7 @@ class StartPage(tk.Frame):
         self.calendar()
         self.weather()
         self.Login()
+        self.AmazingImage()
        
 # Shows the clock on the startpage
     def clock_image(self, hr, min_, sec_):
@@ -141,7 +143,7 @@ class StartPage(tk.Frame):
 
         # It makes a frame for the calendar
         f1 = tk.Frame(self, width=250, height=250)
-        f1.place(x=10, y=230)
+        f1.place(x=10, y=300)
 
         # It places the calendar inside the frame
         cal = Calendar(f1, selectmode="day",
@@ -161,7 +163,7 @@ class StartPage(tk.Frame):
         # It finds the weather icon
         temp_icon = OWIconLabel(self,
                                 weather_icon=owm.get_icon_data(), bg="white")
-        temp_icon.place(x=350, y=25)
+        temp_icon.place(x=400, y=40)
 
         # It gets the location name
         location = owm.get('name')
@@ -170,14 +172,14 @@ class StartPage(tk.Frame):
         # Country and city label
         self.location_lbl = tk.Label(self,
                                      text="{}, {}".format(location, country),
-                                     font=("Bold", 15), bg="white")
-        self.location_lbl.place(x=360, y=10)
+                                     font=("Bold", 20), bg="white")
+        self.location_lbl.place(x=460, y=40)
 
         # Temperature label
         self.temp = tk.Label(self,
                              text='{:.1f} °C'.format(temperature),
-                             font=("Bold", 15), bg="white")
-        self.temp.place(x=410, y=40)
+                             font=("Bold", 20), bg="white")
+        self.temp.place(x=510, y=70)
 
         # Temperature \'feel like'\ value
         temp_feel = owm.get_main('feels_like')
@@ -187,8 +189,8 @@ class StartPage(tk.Frame):
         self.fell_lbl = tk.Label(self,
                                  text="Feels like: {:.1f} °C. {}".format(temp_feel,
                                  desc.capitalize()),
-                                 font=("Bold", 13), bg="white")
-        self.fell_lbl.place(x=360, y=70)
+                                 font=("Bold", 16), bg="white")
+        self.fell_lbl.place(x=460, y=100)
 
 #It displays the login page
     def Login(self):
@@ -284,7 +286,19 @@ class StartPage(tk.Frame):
             lambda: self.controller.show_frame(PageOne)
             login_success_screen.destroy()
             
-   
+    def AmazingImage(self):
+       category_label = tk.Label(self, text="WELCOME TO AMAZING BUTLER APP", bg='white', fg='black',
+                                  justify='center', font='bold', width=40, height=5)
+       
+ 
+       load = Image.open("app pic.png")
+       App_logo = ImageTk.PhotoImage(load)
+       img = tk.Label(self, image=App_logo)
+       img.image = App_logo
+       img.config(width=400, height=500)
+       img.place(x=800, y=180)
+
+       category_label.place(x=380, y=480)
 
 #It displays pageone
 class PageOne(tk.Frame):
@@ -302,6 +316,8 @@ class PageOne(tk.Frame):
         self.button()
         self.account_bal()
         self.graph_save()
+        self.progress()
+        #self.increment()
         
     def clock_image(self, hr, min_, sec_):
         clock = Image.new("RGB", (400, 400), (255, 255, 255))
@@ -349,41 +365,41 @@ class PageOne(tk.Frame):
                            fg='white', bd='5', bg='green',
                            command=lambda: self.controller.show_frame(StartPage))
         logout.pack()
-        logout.place(x=850, y=100, height=60, width=200)
+        logout.place(x=900, y=100, height=60, width=200)
         
         #displays the transaction button
         addtrans = tk.Button(self, text="Add transaction",
                              fg='white', bd='5', bg='green',
                              command=lambda: self.controller.show_frame(PageTransactions))
-        addtrans.place(x=850, y=200, height=60, width=200)
+        addtrans.place(x=900, y=200, height=60, width=200)
         
        #displays the edit account button
         editaccount = tk.Button(self, text="Edit account",
                                 fg='white', bd='5', bg='green',
                                 command=lambda: self.controller.show_frame(PageEdit))
 
-        editaccount.place(x=850, y=300, height=60, width=200)
+        editaccount.place(x=900, y=300, height=60, width=200)
         
        #displays the setup button
         setup = tk.Button(self, text="Setup", fg='white', bd='5', bg='green', command=lambda: self.controller.show_frame(Pagesetup) )
-        setup.place(x=850, y=400, height=60, width=200)
+        setup.place(x=900, y=400, height=60, width=200)
 
         Accountsum = tk.Button(self, text="Account summary",
                                fg='white', bd='5', bg='green',
                                command=lambda: self.controller.show_frame(Summary))
-        Accountsum.place(x=850, y=500, height=60, width=200)
+        Accountsum.place(x=900, y=500, height=60, width=200)
         
          #displays the setup button
         playlotto = tk.Button(self, text="Play lotto",
                               fg='white', bd='5', bg='green',
                               command=self.lot)
-        playlotto.place(x=850, y=600, height=60, width=200)
+        playlotto.place(x=900, y=600, height=60, width=200)
         
         #refresh the balance and graph at startpage
-        refresh = tk.Button(self, text="Refresh",
-                              fg='white', bd='5', bg='blue',
+        refresh = tk.Button(self, text="Refresh Page",
+                              fg='white', bd='5', bg='green',
                               command=self.ref_graph)
-        refresh.place(x=650, y=180, height=20, width=50)
+        refresh.place(x=600, y=150, height=40, width=100)
     
     #It displays the account balance
     def account_bal(self):
@@ -460,6 +476,32 @@ class PageOne(tk.Frame):
     def lot(self):
         Lotto.roll_dice(self)
         
+    def progress(self):
+        conn = sqlite3.connect('Users_data.db')
+        c = conn.cursor()
+        c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Income"')
+        income = c.fetchall() 
+        
+        style = ttk.Style(self)
+# add label in the layout
+        style.layout('text.Horizontal.TProgressbar', 
+             [('Horizontal.Progressbar.trough',
+               {'children': [('Horizontal.Progressbar.pbar',
+                              {'side': 'left', 'sticky': 'ns'})],
+                'sticky': 'nswe'}), 
+              ('Horizontal.Progressbar.label', {'sticky': ''})])
+# set initial text
+        style.configure('text.Horizontal.TProgressbar', text='0 %')
+# create progressbar
+        variable = tk.DoubleVar(self)
+        pbar = ttk.Progressbar(self, style='text.Horizontal.TProgressbar', length=200,
+                               variable=variable)
+        pbar.place(x=100, y=550)
+        pbar = tk.Label(self, text='% of Month', bg='white',
+                              justify='center', font='bold', width=10)
+        pbar.place(x=110, y=600)
+
+
     #displays the transaction page        
 class PageTransactions(tk.Frame):
 
@@ -474,6 +516,7 @@ class PageTransactions(tk.Frame):
         self.working()
         self.transaction()
         self.tran()
+        self.csv_import()
         
        #buttons on the transaction page
         logout = tk.Button(self, text="Logout", fg='white',
@@ -485,11 +528,16 @@ class PageTransactions(tk.Frame):
                                 fg='white', bd='5', bg='green',
                                 command=self.tran)
         confirm_btn.place(x=850, y=140, height=60, width=200)
+        
+        import_btn = tk.Button(self, text='Import CSV File',
+                                fg='white', bd='5', bg='green',
+                                command=self.csv_import)
+        import_btn.place(x=850, y=220, height=60, width=200)
 
         return_btn = tk.Button(self, text='Cancel and return',
                                fg='white', bd='5', bg='green',
                                command=lambda: self.controller.show_frame(PageOne))
-        return_btn.place(x=850, y=220, height=60, width=200)
+        return_btn.place(x=850, y=300, height=60, width=200)
 
     #displays entries
     def transaction(self):
@@ -598,8 +646,21 @@ class PageTransactions(tk.Frame):
     
     def tran(self):
         self.entry_data()
-        tk.messagebox.showinfo('Add Transaction', 'Successful')
         
+    def csv_import(self):
+       
+        
+        conn = sqlite3.connect('Users_data.db')
+        c = conn.cursor()
+        
+        
+           #df = csv.DictReader(fin)
+        df = pd.read_csv('Saving database import.csv')
+        df.to_sql('Income', conn, if_exists='append', index=False)
+        
+     
+        conn.commit()
+        conn.close()
 
 #displays the edit page
 class PageEdit(tk.Frame):
@@ -718,6 +779,10 @@ class PageEdit(tk.Frame):
         db_df = pd.read_sql_query("SELECT * FROM Income", conn)
         db_df.to_csv('Saving database.csv', index=False)
         
+       
+        conn.commit()
+        conn.close()
+    
   
 #displays the setup page
 class Pagesetup(tk.Frame):
@@ -730,6 +795,7 @@ class Pagesetup(tk.Frame):
         self.savings()
         self.entry_savings()
         entry_savings.create_table(self)
+        #self.changes()
         
     def buttons(self):
         logout = tk.Button(self, text="Logout", fg='white',
@@ -743,12 +809,18 @@ class Pagesetup(tk.Frame):
                                 
                                 )
         save_btn.place(x=900, y=200, height=60, width=200)
+        
+        save_btn = tk.Button(self, text='Add Changes',
+                                fg='white', bd='5', bg='green', command=self.changes
+                                
+                                )
+        save_btn.place(x=900, y=300, height=60, width=200)
              
 
         return_btn = tk.Button(self, text='Cancel and return',
                                fg='white', bd='5', bg='green',
                                command=lambda: self.controller.show_frame(PageEdit))
-        return_btn.place(x=900, y=300, height=60, width=200)
+        return_btn.place(x=900, y=400, height=60, width=200)
         
 
         
@@ -810,6 +882,25 @@ class Pagesetup(tk.Frame):
         conn.commit()
         conn.close()
         
+    def changes(self):
+       
+        sel = opts.get()
+        val2 = var2.get()
+        val3 = var3.get()
+        val4 = var4.get()
+        date = date_Box.get_date()
+        conn = sqlite3.connect('Users_data.db')
+        c = conn.cursor()
+        c.execute(
+            "UPDATE Savings set Saving = ? where ID = 1;") 
+        c.execute(
+            "UPDATE Savings set Spending = ? where ID = 1;")
+        c.execute(
+            "UPDATE Savings set Budget = ? where ID = 1;")
+        c.execute(
+            "UPDATE Savings set Date = ? where ID = 1;")
+        conn.commit()
+        conn.close()
        
   #displays the summary page             
 class Summary(tk.Frame):
