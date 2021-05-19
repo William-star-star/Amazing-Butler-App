@@ -25,6 +25,7 @@ from matplotlib import style
 style.use('fivethirtyeight')
 import numpy as np
 from PIL import ImageTk, Image
+from tkinter.filedialog import askopenfilename
 
 
 class AmazingButler(tk.Tk):
@@ -87,7 +88,7 @@ class AmazingButler(tk.Tk):
         self.show_frame(StartPage)
         self.title("Amazing Butler App")
         self.geometry("900x500")
-        self.our_command()
+    
 
    #shows the frames
     def show_frame(self, cont):
@@ -101,6 +102,7 @@ class AmazingButler(tk.Tk):
     def our_command(self):
         my_label = tk.Label(self, text="Clicked!!")
         my_label.pack()
+        self.our_command()
         
 # The startpage class
 
@@ -431,7 +433,7 @@ class PageOne(tk.Frame):
         values = []
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
-        c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses" AND category = "Savings"')
+        c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Income"')
         income = c.fetchall() 
        
         c.execute('SELECT SUM(Amount) FROM Income WHERE InEx = "Expenses"')  
@@ -526,8 +528,7 @@ class PageOne(tk.Frame):
                               justify='center', font='bold', width=10)
         pbar.place(x=50, y=600)
 
-
-    #displays the transaction page        
+#Displays the transaction page
 class PageTransactions(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -540,38 +541,35 @@ class PageTransactions(tk.Frame):
         StartPage.calendar(self)
         self.working()
         self.transaction()
-        self.tran()
-        self.csv_import()
-        
-       #buttons on the transaction page
+    
+#buttons on the page
         logout = tk.Button(self, text="Logout", fg='white',
                            bd='5', bg='green',
                            command=lambda: self.controller.show_frame(StartPage))
-        logout.place(x=850, y=60, height=60, width=200)
+        logout.place(x=650, y=60, height=60, width=200)
 
         confirm_btn = tk.Button(self, text='Add transaction',
                                 fg='white', bd='5', bg='green',
                                 command=self.tran)
-        confirm_btn.place(x=850, y=140, height=60, width=200)
+        confirm_btn.place(x=650, y=140, height=60, width=200)
         
-        import_btn = tk.Button(self, text='Import CSV File',
+        Import_csv = tk.Button(self, text='Import CSV file',
                                 fg='white', bd='5', bg='green',
-                                command=self.csv_import)
-        import_btn.place(x=850, y=220, height=60, width=200)
+                                command=self.csv)
+        Import_csv.place(x=650, y=220, height=60, width=200)
 
         return_btn = tk.Button(self, text='Cancel and return',
                                fg='white', bd='5', bg='green',
                                command=lambda: self.controller.show_frame(PageOne))
-        return_btn.place(x=850, y=300, height=60, width=200)
-
-    #displays entries
+        return_btn.place(x=650, y=300, height=60, width=200,)
+        
+#Entry of data
     def transaction(self):
         global entry_verify
         global opts
         global date_Box
         global var
-        
-       #information in the table of the database
+
         entry_verify = tk.IntVar()
         db_path = r'C:\Users\Prosserc\Documents\Geocoding\test.db'
         conn = sqlite3.connect('Users_data.db')
@@ -581,55 +579,52 @@ class PageTransactions(tk.Frame):
                  'Subscriptions', 'Others']
         opts = tk.StringVar()
         var = tk.StringVar()
-        
-        #label and place of the entries in transaction page
+
         category_label = tk.Label(self, text="Category:", bg='white',
                                   justify='center', font='bold', width=8)
-        category_label.place(x=390, y=100)
+        category_label.place(x=290, y=100)
 
         category_Box = ttk.Combobox(self, font=14, width=18, textvariable=opts)
-        category_Box.place(x=480, y=100, height=30)
+        category_Box.place(x=380, y=100, height=30)
         category_Box['values'] = names
         category_Box.bind("<<ComboboxSelected>>")
 
         amount_label = tk.Label(self, text='Amount:', bg='white',
                                 justify='center', font='bold', width=8)
-        amount_label.place(x=390, y=200)
+        amount_label.place(x=290, y=200)
 
         Amount_Box = tk.Entry(self, font=20, bd='2', textvariable=entry_verify)
-        Amount_Box.place(x=480, y=200, height=30)
+        Amount_Box.place(x=380, y=200, height=30)
 
         date_label = tk.Label(self, text='Date:', bg='white',
                               justify='center', font='bold', width=8)
-        date_label.place(x=390, y=300)
+        date_label.place(x=290, y=300)
 
         date_Box = DateEntry(self, font=14, width=20, bd='2', selectmode="day")
-        date_Box.place(x=480, y=300, height=30)
+        date_Box.place(x=380, y=300, height=30)
 
         check_box = tk.Checkbutton(self,  bg='white', variable=var,
                                    offvalue='Expenses', onvalue='Income')
-        check_box.place(x=480, y=360)
+        check_box.place(x=380, y=360)
         check_box = tk.Label(self, text='Money in?', justify='center',
                              font='bold', bg='white', width=8)
-        check_box.place(x=390, y=360)
-
-    #for entring values in the database
+        check_box.place(x=290, y=360)
+        
+#inputting data
     def entry_data(self):
 
-        val2 = entry_verify.get()
-        val1 = var.get()
+        val2 = var.get()
+        val1 = entry_verify.get()
         sel = opts.get()
         date = date_Box.get_date()
-   
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
         c.execute('INSERT INTO Income (Amount, category, date, InEx) VALUES (?,?,?,?)',
-                  (val2, sel, date, val1))
+                  (val1, sel, date, val2))
 
         conn.commit()
         conn.close()
-        
-     #clock on the transaction page
+
     def clock_image(self, hr, min_, sec_):
         clock = Image.new("RGB", (400, 400), (255, 255, 255))
         draw = ImageDraw.Draw(clock)
@@ -668,26 +663,27 @@ class PageTransactions(tk.Frame):
         self.img = ImageTk.PhotoImage(file="clock_new.png")
         self.lbl.config(image=self.img)
         self.lbl.after(200, self.working)
-    
-    
+   
+    #entering data and it shows info
     def tran(self):
         self.entry_data()
+        tk.messagebox.showinfo('Message title', 'Adding successful')
         
     def csv_import(self):
-       
-        
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
         
-        
-           #df = csv.DictReader(fin)
-        df = pd.read_csv('Saving database import.csv')
+        csv_file_path = askopenfilename()
+        #df = pd.read_csv('Saving database import.csv')
+        df = pd.read_csv('csv_file_path')
         df.to_sql('Income', conn, if_exists='append', index=False)
         
-     
+    
         conn.commit()
         conn.close()
 
+    def csv(self):
+        self.csv_import()
 #displays the edit page
 class PageEdit(tk.Frame):
     
@@ -930,29 +926,26 @@ class Summary(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        self.controller = controller 
+        self.controller = controller
         self.show_values()
-        
-        #buttons on summary page
+
         logout = tk.Button(self, text="Logout", fg='white',
                            bd='5', bg='green',
                            command=lambda: self.controller.show_frame(StartPage))
         logout.place(x=650, y=60, height=60, width=200)
-        
+
         return_btn = tk.Button(self, text='Return',
                                fg='white', bd='5', bg='green',
-                               command=lambda: self.controller.show_frame(Pagesetup))
+                               command=lambda: self.controller.show_frame(PageOne))
         return_btn.place(x=650, y=240, height=60, width=200,)
-        
+
         refresh_btn = tk.Button(self, text='Refresh',
                                fg='white', bd='5', bg='green',
                                command=self.show_values)
         refresh_btn.place(x=650, y=150, height=60, width=200,)
-        
-       #show values from selected values 
+
     def show_values(self):
-        
-        
+
         global dates_get
 
         conn = sqlite3.connect('Users_data.db')
@@ -965,57 +958,58 @@ class Summary(tk.Frame):
         c.execute('SELECT DISTINCT strftime("%m-%Y", date) FROM Income')
         month_year = c.fetchall()
         for row in month_year:
-                dates.append(row[0])
-        
-        #date combobox
-        self.month_Box = ttk.Combobox(self, font=14, width=30, textvariable=dates_get, state='readonly')
+            dates.append(row[0])
+
+        self.month_Box = ttk.Combobox(self, font=14, width=30,
+                                      textvariable=dates_get, state='readonly')
         self.month_Box.place(x=300, y=50, height=30, width=80)
-        
+
         self.month_Box['values'] = dates
         self.month_Box.bind("<<ComboboxSelected>>", self.graph)
-            
-        month_lbl = tk.Label(self, text='Select Date: ', bg='white', font='bold')
+
+        month_lbl = tk.Label(self, text='Select Date: ',
+                             bg='white', font='bold')
         month_lbl.place(x=170, y=50)
-      
-        #selected values
+
         c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses"')
         expense = c.fetchall()
         c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Income"')
         income = c.fetchall()
         c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses" AND category = "Savings"')
         savings = c.fetchall()
-        
-        #money in label
+
         Money_in = tk.Label(self, text='Money in', font='bold', bg='white')
         Money_in.place(x=650, y=400)
-        Money_in_show = tk.Label(self, text=income, font='bold', bg='white', borderwidth=2, relief="solid", width = 10)
+        Money_in_show = tk.Label(self, text=income,
+                                 font='bold', bg='white', borderwidth=2,
+                                 relief="solid", width=10)
         Money_in_show.place(x=750, y=400)
-        
-        #spending label
+
         Spending = tk.Label(self, text='Spending', font='bold', bg='white')
         Spending.place(x=650, y=450)
-        Spending_show = tk.Label(self, text=expense, font='bold', bg='white', borderwidth=2, relief="solid", width = 10)
+        Spending_show = tk.Label(self, text=expense, font='bold',
+                                 bg='white', borderwidth=2, relief="solid",
+                                 width=10)
         Spending_show.place(x=750, y=450)
-        
-        #savings label
+
         Savings = tk.Label(self, text='Savings', font='bold', bg='white')
         Savings.place(x=650, y=500)
-        Savings_show = tk.Label(self, text=savings, font='bold', bg='white', borderwidth=2, relief="solid", width = 10)
+        Savings_show = tk.Label(self, text=savings, font='bold',
+                                bg='white', borderwidth=2, relief="solid",
+                                width=10)
         Savings_show.place(x=750, y=500)
-           
+
         conn.commit()
         conn.close()
-        
-   #displays graph of selected month
+
     def graph(self, event=None):
 
         to_graph = dates_get.get()
-        
-      
+
         values = []
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
-       
+
         c.execute('SELECT EXISTS (SELECT Amount FROM Income WHERE InEx = "Expenses" AND category = "Rent" AND strftime("%m-%Y",date) = ?)',
             (to_graph,))
         rent = c.fetchone()[0]
@@ -1024,40 +1018,34 @@ class Summary(tk.Frame):
             (to_graph,))
             x = c.fetchall()
             for row in x:
-                    values.append(row[0])
-     
+                values.append(row[0])
         else:
             values.append(rent)
-                
-        
+
         c.execute('SELECT EXISTS (SELECT Amount FROM Income WHERE InEx = "Expenses" AND category = "Savings" AND strftime("%m-%Y",date) = ?)',
-                         (to_graph,))
+                  (to_graph,))
         savings = c.fetchone()[0]
         if savings == 1:
             c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses" AND category = "Savings" AND strftime("%m-%Y",date) = ?',
             (to_graph,))
             x = c.fetchall()
             for row in x:
-                    values.append(row[0])
-                    
+                values.append(row[0])
         else:
             values.append(savings)
-                
-    
-               
+
         c.execute('SELECT EXISTS (SELECT Amount FROM Income WHERE InEx = "Expenses" AND category = "Travel" AND strftime("%m-%Y",date) = ?)',
-                        (to_graph,))
+                  (to_graph,))
         travel = c.fetchone()[0]
         if travel == 1:
             c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses" AND category = "Travel" AND strftime("%m-%Y",date) = ?',
             (to_graph,))
             x = c.fetchall()
             for row in x:
-                    values.append(row[0])
+                values.append(row[0])
         else:
             values.append(travel)
-        
-                
+
         c.execute('SELECT EXISTS (SELECT Amount FROM Income WHERE InEx = "Expenses" AND category = "Groceries" AND strftime("%m-%Y",date) = ?)',
             (to_graph,))
         groceries = c.fetchone()[0]
@@ -1066,79 +1054,36 @@ class Summary(tk.Frame):
             (to_graph,))
             x = c.fetchall()
             for row in x:
-                    values.append(row[0])
+                values.append(row[0])
         else:
             values.append(groceries)
-            
-        c.execute('SELECT EXISTS (SELECT Amount FROM Income WHERE InEx = "Expenses" AND category = "Subscriptions" AND strftime("%m-%Y",date) = ?)',
-            (to_graph,))
-        Subscriptions = c.fetchone()[0]
-        if Subscriptions == 1:
-            c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses" AND category = "Subscriptions" AND strftime("%m-%Y",date) = ?',
-            (to_graph,))
-            x = c.fetchall()
-            for row in x:
-                    values.append(row[0])
-     
-        else:
-            values.append(Subscriptions)
-            
-        c.execute('SELECT EXISTS (SELECT Amount FROM Income WHERE InEx = "Expenses" AND category = "Pleasure" AND strftime("%m-%Y",date) = ?)',
-                         (to_graph,))
-        pleasure = c.fetchone()[0]
-        if pleasure == 1:
-            c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses" AND category = "Pleasure" AND strftime("%m-%Y",date) = ?',
-            (to_graph,))
-            x = c.fetchall()
-            for row in x:
-                    values.append(row[0])
-        else:
-            values.append(pleasure)
-            
-        c.execute('SELECT EXISTS (SELECT Amount FROM Income WHERE InEx = "Expenses" AND category = "Gambling" AND strftime("%m-%Y",date) = ?)',
-                         (to_graph,))
-        gambling = c.fetchone()[0]
-        if gambling == 1:
-            c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses" AND category = "Gambling" AND strftime("%m-%Y",date) = ?',
-            (to_graph,))
-            x = c.fetchall()
-            for row in x:
-                    values.append(row[0])
-        else:
-            values.append(gambling)
-                
+
         c.execute('SELECT EXISTS (SELECT Amount FROM Income WHERE InEx = "Expenses" AND category = "Others" AND strftime("%m-%Y",date) = ?)',
-                         (to_graph,))
+                  (to_graph,))
         others = c.fetchone()[0]
         if others == 1:
             c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses" AND category = "Others" AND strftime("%m-%Y",date) = ?',
             (to_graph,))
             x = c.fetchall()
             for row in x:
-                    values.append(row[0])
+                values.append(row[0])
         else:
-            values.append(others)
-        
-        y = ["Rent", "Savings", "Travel", "Groceries", 'Subscriptions', 'Pleasure', 'Gambling', "Others"]
-       
-        #graph position on the summary page
-        First_Canvas = tk.Canvas(self, width=405, height=300)
+            values.append(savings)
+
+        y = ["Rent", "Savings", "Travel", "Groceries", "Others"]
+
+        First_Canvas = tk.Canvas(self, width=305, height=150)
         First_Canvas.place(x=30, y=100)
-        
-        
-        f = Figure(figsize=(5,5), dpi=100)
+
+        f = Figure(figsize=(5, 5), dpi=100)
         a = f.add_subplot(111)
         a.bar(y, values)
-        a.set_xticklabels(y, rotation=45, ha='right')
-        
-        canvas = FigureCanvasTkAgg(f, First_Canvas)
-       
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        canvas = FigureCanvasTkAgg(f, First_Canvas)
+
+        canvas.get_tk_widget().pack()
         toolbar = NavigationToolbar2Tk(canvas, First_Canvas)
-        
         toolbar.config(background='white')
-        toolbar._message_label.config(background='white')
         toolbar.update()
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
