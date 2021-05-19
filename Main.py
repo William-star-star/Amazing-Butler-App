@@ -29,6 +29,8 @@ from PIL import ImageTk, Image
 
 class AmazingButler(tk.Tk):
     # the frame for the app
+    
+     
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -36,26 +38,41 @@ class AmazingButler(tk.Tk):
 
         container.pack(side="top", fill="both", expand=True)
 
-# The menu buttons on the window
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         menubar = tk.Menu(container)
         filemenu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label='File', menu=filemenu)
+        filemenu.add_command(label='Open', command=self.our_command)
+        filemenu.add_command(label='Exit', command=self.destroy)
+        
         Editmenu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label='Edit', menu=Editmenu)
+        Editmenu.add_command(label='Copy', command=self.our_command)
+        Editmenu.add_command(label='Cut', command=self.our_command)
+        Editmenu.add_command(label='Paste', command=self.our_command)
+        
         Optionsmenu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label='Options', menu=Optionsmenu)
+        Optionsmenu.add_command(label='View', command=self.our_command)
+        Optionsmenu.add_command(label='Settings', command=self.our_command)
+        
         Toolsmenu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label='Tools', menu=Toolsmenu)
-        Windowmenu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label='Window', menu=Windowmenu)
+        Toolsmenu.add_command(label='Preferences', command=self.our_command)
+        Toolsmenu.add_command(label='', command=self.our_command)
+        
+        Viewmenu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label='View', menu=Viewmenu)
+        Viewmenu.add_command(label='Window layout', command=self.our_command)
+        Viewmenu.add_command(label='Full screen mode', command=self.our_command)
+        
         helpmenu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label='Help', menu=helpmenu)
-        filemenu.add_command(label='Exit', command=self.destroy)
-
+        helpmenu.add_command(label='Troubleshooting', command=self.our_command)
+        helpmenu.add_command(label='App tutorial', command=self.our_command)
+       
         tk.Tk.config(self, menu=menubar)
-
       # shows the frame of the various pages 
         self.frames = {}
 
@@ -70,6 +87,7 @@ class AmazingButler(tk.Tk):
         self.show_frame(StartPage)
         self.title("Amazing Butler App")
         self.geometry("900x500")
+        self.our_command()
 
    #shows the frames
     def show_frame(self, cont):
@@ -77,6 +95,12 @@ class AmazingButler(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
         
+    
+        # The menu buttons on the window
+       
+    def our_command(self):
+        my_label = tk.Label(self, text="Clicked!!")
+        my_label.pack()
         
 # The startpage class
 
@@ -143,7 +167,7 @@ class StartPage(tk.Frame):
 
         # It makes a frame for the calendar
         f1 = tk.Frame(self, width=250, height=250)
-        f1.place(x=10, y=300)
+        f1.place(x=10, y=250)
 
         # It places the calendar inside the frame
         cal = Calendar(f1, selectmode="day",
@@ -317,7 +341,7 @@ class PageOne(tk.Frame):
         self.account_bal()
         self.graph_save()
         self.progress()
-        #self.increment()
+    
         
     def clock_image(self, hr, min_, sec_):
         clock = Image.new("RGB", (400, 400), (255, 255, 255))
@@ -399,7 +423,7 @@ class PageOne(tk.Frame):
         refresh = tk.Button(self, text="Refresh Page",
                               fg='white', bd='5', bg='green',
                               command=self.ref_graph)
-        refresh.place(x=600, y=150, height=40, width=100)
+        refresh.place(x=550, y=180, height=40, width=100)
     
     #It displays the account balance
     def account_bal(self):
@@ -407,9 +431,9 @@ class PageOne(tk.Frame):
         values = []
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
-        c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Income"')
+        c.execute('SELECT SUM (Amount) FROM Income WHERE InEx = "Expenses" AND category = "Savings"')
         income = c.fetchall() 
-        
+       
         c.execute('SELECT SUM(Amount) FROM Income WHERE InEx = "Expenses"')  
         expenses = c.fetchall()
         
@@ -422,7 +446,7 @@ class PageOne(tk.Frame):
         #label for account balance
         Acct_bal = tk.Label(self, text='Account Balance in Euros', font='bold', bg='white')
         Acct_bal.place(x=500, y=250)
-        Acct_bal_show = tk.Label(self, text=income,
+        Acct_bal_show = tk.Label(self, text=balance,
                                  font='bold', bg='white', borderwidth=2,
                                  relief="solid", width=20)
         Acct_bal_show.place(x=500, y=280)
@@ -496,10 +520,11 @@ class PageOne(tk.Frame):
         variable = tk.DoubleVar(self)
         pbar = ttk.Progressbar(self, style='text.Horizontal.TProgressbar', length=200,
                                variable=variable)
-        pbar.place(x=100, y=550)
+        pbar.place(x=10, y=550)
+       
         pbar = tk.Label(self, text='% of Month', bg='white',
                               justify='center', font='bold', width=10)
-        pbar.place(x=110, y=600)
+        pbar.place(x=50, y=600)
 
 
     #displays the transaction page        
@@ -591,14 +616,15 @@ class PageTransactions(tk.Frame):
     #for entring values in the database
     def entry_data(self):
 
-        val2 = var.get()
-        val1 = entry_verify.get()
+        val2 = entry_verify.get()
+        val1 = var.get()
         sel = opts.get()
         date = date_Box.get_date()
+   
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
         c.execute('INSERT INTO Income (Amount, category, date, InEx) VALUES (?,?,?,?)',
-                  (val1, sel, date, val2))
+                  (val2, sel, date, val1))
 
         conn.commit()
         conn.close()
@@ -762,9 +788,7 @@ class PageEdit(tk.Frame):
 
         for row in data:
          self.tree.insert(parent = '', index=tk.END, values=row) 
-         
-     
-        self.tree.grid(row=0, column=0)
+        
         self.tree.place(x=100,y=300)
         
         conn.commit()
@@ -805,18 +829,15 @@ class Pagesetup(tk.Frame):
         
         #add target button
         save_btn = tk.Button(self, text='Add Target',
-                                fg='white', bd='5', bg='green', command=self.entry_savings
-                                
-                                )
+                                fg='white', bd='5', bg='green', command=self.entry_savings)
+                                                         
         save_btn.place(x=900, y=200, height=60, width=200)
         
         save_btn = tk.Button(self, text='Add Changes',
-                                fg='white', bd='5', bg='green', command=self.changes
+                                fg='white', bd='5', bg='green', command=self.changes)
                                 
-                                )
         save_btn.place(x=900, y=300, height=60, width=200)
              
-
         return_btn = tk.Button(self, text='Cancel and return',
                                fg='white', bd='5', bg='green',
                                command=lambda: self.controller.show_frame(PageEdit))
@@ -868,7 +889,7 @@ class Pagesetup(tk.Frame):
         
         
     def entry_savings(self):
-        #val1 = var1.get()
+     
         sel = opts.get()
         val2 = var2.get()
         val3 = var3.get()
@@ -876,6 +897,8 @@ class Pagesetup(tk.Frame):
         date = date_Box.get_date()
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
+        
+        
         c.execute('INSERT INTO Savings(Saving, Spending, Budget, Date) VALUES (?,?,?,?)',
                   (val2,val3,val4,date))
 
