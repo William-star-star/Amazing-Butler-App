@@ -26,6 +26,7 @@ style.use('fivethirtyeight')
 import numpy as np
 from PIL import ImageTk, Image
 from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import asksavefilename
 
 
 class AmazingButler(tk.Tk):
@@ -555,7 +556,7 @@ class PageTransactions(tk.Frame):
         
         Import_csv = tk.Button(self, text='Import CSV file',
                                 fg='white', bd='5', bg='green',
-                                command=self.csv)
+                                command=self.csvfile)
         Import_csv.place(x=650, y=220, height=60, width=200)
 
         return_btn = tk.Button(self, text='Cancel and return',
@@ -673,16 +674,15 @@ class PageTransactions(tk.Frame):
         conn = sqlite3.connect('Users_data.db')
         c = conn.cursor()
         
-        csv_file_path = askopenfilename()
-        #df = pd.read_csv('Saving database import.csv')
-        df = pd.read_csv('csv_file_path')
+        csv_file_path = asksavefilename(initialdir='.')
+        df = pd.read_csv(csv_file_path)
+        df = df.dropna()
         df.to_sql('Income', conn, if_exists='append', index=False)
-        
-    
+         
         conn.commit()
         conn.close()
 
-    def csv(self):
+    def csvfile(self):
         self.csv_import()
 #displays the edit page
 class PageEdit(tk.Frame):
@@ -694,9 +694,8 @@ class PageEdit(tk.Frame):
        
         self.buttons()
         self.selecting_dates()
-        self.to_csv()
-      
        
+      
     #displays the buttons on the edit page
     def buttons(self):
         #logout button
@@ -723,7 +722,7 @@ class PageEdit(tk.Frame):
         
        #export to csv button
         export_csv = tk.Button(self, text="Export to CSV", fg='white',
-                           bd='5', bg='green',command = self.to_csv)
+                           bd='5', bg='green',command = self.to_csv_file)
         export_csv.place(x=650, y=300, height=60, width=200)
         
 
@@ -791,18 +790,21 @@ class PageEdit(tk.Frame):
         conn.close()
         
      #export to csv file
-    def to_csv(self):
+    def csv_export(self):
        
         conn = sqlite3.connect('Users_data.db',  isolation_level=None,
                        detect_types=sqlite3.PARSE_COLNAMES)
 
         db_df = pd.read_sql_query("SELECT * FROM Income", conn)
-        db_df.to_csv('Saving database.csv', index=False)
+        csv_file_path = asksavefilename(initialdir='.')
+        db_df = db_df.dropna()
+        db_df.to_csv(csv_file_path, index=False)
         
-       
         conn.commit()
         conn.close()
     
+    def to_csv_file(self):
+        self.csv_export()
   
 #displays the setup page
 class Pagesetup(tk.Frame):
@@ -813,7 +815,7 @@ class Pagesetup(tk.Frame):
         
         self.buttons()
         self.savings()
-        self.entry_savings()
+        #self.entry_savings()
         entry_savings.create_table(self)
         #self.changes()
         
@@ -825,14 +827,14 @@ class Pagesetup(tk.Frame):
         
         #add target button
         save_btn = tk.Button(self, text='Add Target',
-                                fg='white', bd='5', bg='green', command=self.entry_savings)
+                                fg='white', bd='5', bg='green', command=self.save)
                                                          
         save_btn.place(x=900, y=200, height=60, width=200)
         
-        save_btn = tk.Button(self, text='Add Changes',
+        Add_ch = tk.Button(self, text='Add Changes',
                                 fg='white', bd='5', bg='green', command=self.changes)
                                 
-        save_btn.place(x=900, y=300, height=60, width=200)
+        Add_ch.place(x=900, y=300, height=60, width=200)
              
         return_btn = tk.Button(self, text='Cancel and return',
                                fg='white', bd='5', bg='green',
@@ -900,6 +902,10 @@ class Pagesetup(tk.Frame):
 
         conn.commit()
         conn.close()
+        
+    def save(self):
+        self.entry_savings()
+        tk.messagebox.showinfo('Message title', 'Adding successful')
         
     def changes(self):
        
