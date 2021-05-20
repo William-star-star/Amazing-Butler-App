@@ -25,8 +25,9 @@ from matplotlib import style
 style.use('fivethirtyeight')
 import numpy as np
 from PIL import ImageTk, Image
+from tkinter.filedialog import asksaveasfile
 from tkinter.filedialog import askopenfilename
-from tkinter.filedialog import asksavefilename
+
 
 
 class AmazingButler(tk.Tk):
@@ -796,8 +797,10 @@ class PageEdit(tk.Frame):
                        detect_types=sqlite3.PARSE_COLNAMES)
 
         db_df = pd.read_sql_query("SELECT * FROM Income", conn)
-        csv_file_path = asksavefilename(initialdir='.')
-        db_df = db_df.dropna()
+    
+        files = [('Text Document', '*.csv')] 
+        csv_file_path = asksaveasfile(initialdir = "/",
+                                      filetypes = files,  defaultextension = files)
         db_df.to_csv(csv_file_path, index=False)
         
         conn.commit()
@@ -815,9 +818,8 @@ class Pagesetup(tk.Frame):
         
         self.buttons()
         self.savings()
-        #self.entry_savings()
         entry_savings.create_table(self)
-        #self.changes()
+       
         
     def buttons(self):
         logout = tk.Button(self, text="Logout", fg='white',
@@ -831,15 +833,11 @@ class Pagesetup(tk.Frame):
                                                          
         save_btn.place(x=900, y=200, height=60, width=200)
         
-        Add_ch = tk.Button(self, text='Add Changes',
-                                fg='white', bd='5', bg='green', command=self.changes)
-                                
-        Add_ch.place(x=900, y=300, height=60, width=200)
-             
+       
         return_btn = tk.Button(self, text='Cancel and return',
                                fg='white', bd='5', bg='green',
                                command=lambda: self.controller.show_frame(PageEdit))
-        return_btn.place(x=900, y=400, height=60, width=200)
+        return_btn.place(x=900, y=300, height=60, width=200)
         
 
         
@@ -907,26 +905,7 @@ class Pagesetup(tk.Frame):
         self.entry_savings()
         tk.messagebox.showinfo('Message title', 'Adding successful')
         
-    def changes(self):
-       
-        sel = opts.get()
-        val2 = var2.get()
-        val3 = var3.get()
-        val4 = var4.get()
-        date = date_Box.get_date()
-        conn = sqlite3.connect('Users_data.db')
-        c = conn.cursor()
-        c.execute(
-            "UPDATE Savings set Saving = ? where ID = 1;") 
-        c.execute(
-            "UPDATE Savings set Spending = ? where ID = 1;")
-        c.execute(
-            "UPDATE Savings set Budget = ? where ID = 1;")
-        c.execute(
-            "UPDATE Savings set Date = ? where ID = 1;")
-        conn.commit()
-        conn.close()
-       
+     
   #displays the summary page             
 class Summary(tk.Frame):
     def __init__(self, parent, controller):
